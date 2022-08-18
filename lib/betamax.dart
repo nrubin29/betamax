@@ -119,13 +119,12 @@ class Betamax {
   /// This is not required if [clientForTest] was called with
   /// `setCassetteFromTestName: true`.
   static void setCassette(List<String> cassettePathParts) async {
-    final cassettePath = joinAll(
-          [
-            suiteName,
-            ...cassettePathParts,
-          ].map((part) => Slugify(part!.trim(), delimiter: '_')),
-        ) +
-        '.json';
+    final cassettePath = '${joinAll(
+      [
+        suiteName,
+        ...cassettePathParts,
+      ].map((part) => Slugify(part!.trim(), delimiter: '_')),
+    )}.json';
 
     final interceptor = _activeClient!.interceptor as BetamaxInterceptor;
     interceptor.insertCassette(cassettePath);

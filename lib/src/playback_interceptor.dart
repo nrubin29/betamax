@@ -13,9 +13,6 @@ class PlaybackInterceptor extends BetamaxInterceptor {
   /// The cassette being played back
   late Cassette cassette;
 
-  /// The index of the current request-response being played back
-  int playheadPosition = 0;
-
   @override
   void insertCassette(String cassetteFilePath) {
     super.insertCassette(cassetteFilePath);
@@ -29,17 +26,16 @@ class PlaybackInterceptor extends BetamaxInterceptor {
   @override
   Future<OverrideResponse> interceptRequest(
       InterceptedBaseRequest request, String correlator) async {
-    if (cassette.interactions.length <= playheadPosition) {
+    final interaction =
+        cassette.interactionsByRequestUrl[request.url.toString()];
+
+    if (interaction == null) {
       fail('Unexpected request (${request.method} ${request.url})');
     }
 
-    final interaction = cassette.interactions[playheadPosition];
     final storedReq = interaction.request!;
-    playheadPosition++;
-
-    if (request.method.toLowerCase() != storedReq.method ||
-        request.url.toString() != storedReq.url) {
-      fail('Unexpected request (${request.method} ${request.url})');
+    if (request.method.toLowerCase() != storedReq.method) {
+      fail('Wrong method. Expected ${storedReq.method} but got ${request.url}');
     }
 
     // The stream being drained is important, as it can have side effects
@@ -64,6 +60,7 @@ class PlaybackInterceptor extends BetamaxInterceptor {
 
 class BetamaxPlaybackException implements Exception {
   BetamaxPlaybackException(this.message);
+
   final String message;
 
   @override

@@ -2,10 +2,15 @@ class Cassette {
   Cassette({
     this.name,
     List<InteractionPair>? interactions,
-  }) : interactions = interactions ?? const [];
+  })  : interactions = interactions ?? const <InteractionPair>[],
+        interactionsByRequestUrl = {
+          for (final interaction in interactions ?? const <InteractionPair>[])
+            interaction.request!.url!: interaction,
+        };
 
   final String? name;
   final List<InteractionPair> interactions;
+  final Map<String, InteractionPair> interactionsByRequestUrl;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
